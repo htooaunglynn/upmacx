@@ -31,3 +31,22 @@ formula/cask upgrades remain unverified. Acquire those fixtures in a disposable
 Homebrew prefix/Mac, record OS version and architecture, then run native arm64
 and amd64 smoke tests before publication or broadening compatibility. No public
 release compatibility is claimed.
+
+## Native cask fixtures acquired 2026-10-27
+
+`homebrew-7.0.10-darwin-arm64-empty.json` and
+`homebrew-7.0.10-darwin-arm64-casks.json` were acquired from real Homebrew 7.0.10
+(`8f10429b56be28a25032b87463fffc95e556b5bc`) on macOS 27.0.1 (26A434), arm64.
+The [controlled native run](../../../../docs/validation/2026-10-27-homebrew-arm64.md)
+used only isolated local script-cask fixtures, separate HOME/cache/prefix, and
+file-only Git remotes. Acquisition was `brew outdated --json=v2`, exit 0 for both
+empty and outdated results, with greedy settings disabled. The cask snapshot has
+one eligible 1.0 → 2.0 candidate and one pinned cask; the self-updating cask is
+absent. No installed user packages or private account data appear in fixtures.
+
+The real updater also passed cask upgrades, explicit cleanup and a controlled
+partial failure. These results supersede the earlier “unverified” statements
+above for this narrow cask-fixture scope only. Formula builds were blocked by
+Homebrew's inherited-sandbox guard, and real vendor application authentication,
+formula keg-retention evidence, native Intel and upmacx formula acceptance remain
+pending. The original `mixed.json` remains explicitly synthetic.

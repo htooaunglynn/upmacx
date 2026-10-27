@@ -51,7 +51,7 @@ func (p *Provider) Detect(ctx context.Context) (updater.Availability, error) {
 	if err != nil {
 		return updater.Availability{}, err
 	}
-	version := strings.TrimSpace(string(r.Stdout))
+	version := strings.Split(strings.TrimSpace(string(r.Stdout)), "\n")[0]
 	// This adapter's schema/environment semantics were reviewed against 7.0.10.
 	if version != "Homebrew 7.0.10" {
 		return updater.Availability{Version: version, Reason: "unverified Homebrew version (reviewed: 7.0.10)"}, nil

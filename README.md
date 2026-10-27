@@ -114,3 +114,12 @@ The tag workflow prepares artifacts and creates a GitHub **draft** only after it
 checks pass. Maintainers must verify native acceptance and review the draft
 before public promotion. Tap updates remain manual. The workflow has not yet
 been validated on GitHub.
+
+## Phase 1 acceptance status
+
+The [acceptance ledger](docs/validation/phase-1-acceptance.md) lists each implemented
+component, its evidence, and the remaining native/release gates. The opt-in
+`native_brew_acceptance.py` command there creates local-only formula/cask fixtures
+in a new isolated prefix. It has not completed in the current inherited sandbox;
+run it in a disposable Mac or ordinary terminal without disabling Homebrew's
+sandbox. Native Intel CI is explicitly configured, but hosted runs are pending.

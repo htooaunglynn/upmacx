@@ -12,5 +12,9 @@
 - Report Homebrew probe timeouts, overflows and execution errors as failures.
 - Add local release preparation with clean-tag/source verification, archives,
   separate source/binary checksums and generated source formula.
+- Enforce canonical provider ordering and clone discovered/approved plans.
+- Report stage progress and interrupted cleanup while preserving completed IDs.
+- Accept reviewed Homebrew version headers with trailing tap-version details.
+- Add explicit native Intel CI and opt-in isolated native Homebrew acceptance.
 - Provider installation, native Intel validation, real tagged release archives and
   Homebrew formula audit/install/test remain pending. No release is published.

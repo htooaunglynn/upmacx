@@ -65,7 +65,7 @@ type forbiddenRead struct{}
 
 func (forbiddenRead) Read([]byte) (int, error) { panic("nonterminal input read") }
 func TestParse(t *testing.T) {
-	for _, args := range [][]string{{"--wat"}, {"positional"}, {"--providers", ""}, {"--providers", "brew,"}, {"--providers", "npm"}, {"--providers", "brew", "--providers", "brew"}, {"--check", "--clean"}, {"--check", "--system"}, {"--system"}, {"--no-clean"}} {
+	for _, args := range [][]string{{"--wat"}, {"positional"}, {"--providers", ""}, {"--providers", "brew,"}, {"--providers", "npm"}, {"--providers", "brew", "--providers", "brew"}, {"--check", "--clean"}, {"--check", "--system"}, {"--system"}, {"--no-clean"}, {"--version", "--check", "--clean"}, {"--version", "--system"}} {
 		t.Run(strings.Join(args, " "), func(t *testing.T) {
 			if _, e := Parse(args); e == nil {
 				t.Fatal("accepted invalid arguments")

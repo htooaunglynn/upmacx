@@ -48,7 +48,7 @@ func Parse(args []string) (Options, error) {
 			}
 		}
 	}
-	if o.Help || o.Version {
+	if o.Help {
 		return o, nil
 	}
 	if o.Check && (o.Clean || o.System) {

@@ -30,4 +30,5 @@ type Result struct {
 	ID, Status, Stage string
 	Err               error
 	Outcome           Outcome
+	MutationAttempted bool
 }

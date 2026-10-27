@@ -6,7 +6,7 @@ jobs:
   test:
     strategy:
       matrix:
-        os: [ubuntu-latest, macos-latest]
+        os: [ubuntu-latest, macos-latest, macos-15-intel]
     runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v4
@@ -19,3 +19,10 @@ jobs:
       - run: go vet ./...
       - run: CGO_ENABLED=0 GOOS=darwin GOARCH=arm64 go build -trimpath -o dist/upmacx-arm64 ./cmd/upmacx
       - run: CGO_ENABLED=0 GOOS=darwin GOARCH=amd64 go build -trimpath -o dist/upmacx-amd64 ./cmd/upmacx
+      - name: Native macOS help and version smoke test
+        if: runner.os == 'macOS'
+        run: |
+          go build -trimpath -o dist/upmacx-native ./cmd/upmacx
+          test "$(./dist/upmacx-native --version)" = "upmacx dev"
+          ./dist/upmacx-native --help
+          uname -m

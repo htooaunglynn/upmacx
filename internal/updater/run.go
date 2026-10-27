@@ -19,9 +19,11 @@ type View interface {
 	DependencyNotice()
 	Summary(Result)
 	Interrupted()
+	Stage(string, string)
 }
 
 func Run(ctx context.Context, o Options, providers []Provider, view View) int {
+	providers = ordered(providers)
 	results := make([]Result, len(providers))
 	plans := make([]Plan, len(providers))
 	work, failed := false, false
@@ -41,6 +43,8 @@ func Run(ctx context.Context, o Options, providers []Provider, view View) int {
 			results[i].Status = "interrupted"
 			continue
 		}
+		results[i].Stage = "detect"
+		view.Stage(p.ID(), "detecting")
 		avail, e := p.Detect(ctx)
 		if e != nil {
 			fail(i, "detect", e)
@@ -54,15 +58,16 @@ func Run(ctx context.Context, o Options, providers []Provider, view View) int {
 			}
 			continue
 		}
+		results[i].Stage = "discover"
+		view.Stage(p.ID(), "refreshing metadata and checking updates")
 		plan, e := p.Discover(ctx)
 		if e != nil {
 			fail(i, "discover", e)
 			continue
 		}
-		plans[i] = plan
+		plans[i] = clonePlan(plan)
 		results[i].Status = "up-to-date"
 		cleanup := o.Clean && p.ID() == "brew"
-		view.Plan(plan, cleanup)
 		if len(plan.Candidates) > 0 {
 			if plan.ReportOnly {
 				results[i].Status = "report-only"
@@ -74,6 +79,13 @@ func Run(ctx context.Context, o Options, providers []Provider, view View) int {
 		if cleanup {
 			work = true
 		}
+	}
+	// Every provider finishes discovery before rendering the final consent plan.
+	for i, p := range providers {
+		if results[i].Status == "failed" || results[i].Status == "unavailable" || results[i].Status == "interrupted" {
+			continue
+		}
+		view.Plan(clonePlan(plans[i]), o.Clean && p.ID() == "brew")
 	}
 	code := 0
 	if !o.Check && work && ctx.Err() == nil {
@@ -102,7 +114,10 @@ func Run(ctx context.Context, o Options, providers []Provider, view View) int {
 				continue
 			}
 			if len(plans[i].Candidates) > 0 {
-				out, e := p.Apply(ctx, plans[i])
+				results[i].Stage = "apply"
+				results[i].MutationAttempted = true
+				view.Stage(p.ID(), "applying approved updates")
+				out, e := p.Apply(ctx, clonePlan(plans[i]))
 				results[i].Outcome = out
 				if e != nil {
 					fail(i, "apply (partial/unknown changes possible)", e)
@@ -110,7 +125,14 @@ func Run(ctx context.Context, o Options, providers []Provider, view View) int {
 				}
 				results[i].Status = "succeeded"
 			}
+			if cleanup && ctx.Err() != nil {
+				results[i].Status = "interrupted"
+				results[i].Stage = "cleanup"
+			}
 			if cleanup && ctx.Err() == nil {
+				results[i].Stage = "cleanup"
+				results[i].MutationAttempted = true
+				view.Stage(p.ID(), "running approved cleanup")
 				if e := p.Cleanup(ctx); e != nil {
 					fail(i, "cleanup", e)
 				} else {

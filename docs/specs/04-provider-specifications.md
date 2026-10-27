@@ -18,7 +18,7 @@ Tool installation instructions belong in README; upmacx never executes them. Opt
 - Cask installers may request authentication or require closing an app; forward their interaction. Failed installers are errors, not automatic reasons to retry with force.
 - Acceptance: formula-only, cask-only, mixed, pinned, self-updating, no changes, upgrade failure, cleanup failure, and automatic-cleanup suppression are covered. Explicit IDs can behave differently from bulk upgrades, so eligibility filters must be tested before shipping.
 
-Development evidence: [7.0.10 compatibility record](../../internal/providers/brew/testdata/README.md). This adapter is available for local development only; native installation and publication gates remain outstanding. Source-reviewed synthetic schemas are not recorded as native discovery or installation results. Other versions remain unavailable until their schema/environment semantics and help capabilities are reviewed.
+Development evidence: [7.0.10 compatibility record](../../internal/providers/brew/testdata/README.md) and [controlled arm64 cask acceptance](../validation/2026-10-27-homebrew-arm64.md). Real local cask discovery, pins, non-greedy eligibility, upgrades, cleanup and partial failure passed. Formula builds, real vendor authentication, Intel and source-formula release gates remain outstanding, so this is not a release-readiness claim. The synthetic mixed schema is still distinguished from acquired native cask fixtures. Other versions remain unavailable until their schema/environment semantics and help capabilities are reviewed.
 
 Reference: [Homebrew manual](https://docs.brew.sh/Manpage). The manual documents automatic cleanup controls; opt-in cleanup is an upmacx policy layered on those controls.
 

@@ -34,7 +34,7 @@ type Runner interface {
 - `CommandResult`: captured byte streams and child exit code; errors distinguish start failure, nonzero exit, overflow and context cancellation. Providers alone normalize documented nonzero discovery statuses.
 - `Candidate`: opaque validated ID, display name, installed/target version strings (unknown allowed), kind, restart/manual-action note. Never derive executable names from candidate text.
 - `Plan`: provider ID, candidates, exclusions with reasons, report-only bool. Candidate IDs are kept separate from display strings; empty plan cannot trigger Apply.
-- `Outcome`: provider ID, completed candidate IDs if provable, operation status and manual-action notes. Aggregate results also record failed stage, diagnostic and whether earlier mutation occurred.
+- `Outcome`: provider ID, completed candidate IDs if provable, operation status and manual-action notes. Aggregate results also record the current/failed stage, diagnostic, whether mutation was attempted, and any provable earlier completed candidate IDs. An attempt is not proof that a package changed.
 
 Cleanup is a no-op on providers other than brew; the orchestrator calls it only for selected brew with `--clean`, consent and no brew failure. Discovery must not set mutation flags or invoke cleanup. Rendering consumes plans/results; provider logic never prompts for upmacx consent.
 

@@ -169,3 +169,36 @@ func TestProbeRuntimeFailures(t *testing.T) {
 		})
 	}
 }
+
+func TestVersionWithTapDetails(t *testing.T) {
+	r := &runner{version: "Homebrew 7.0.10\nHomebrew/homebrew-core N/A\n"}
+	a, err := New(r).Detect(context.Background())
+	if err != nil || !a.Available || a.Version != "Homebrew 7.0.10" {
+		t.Fatal(a, err)
+	}
+}
+
+func TestNativeCaskSnapshots(t *testing.T) {
+	data, err := os.ReadFile("testdata/homebrew-7.0.10-darwin-arm64-casks.json")
+	if err != nil {
+		t.Fatal(err)
+	}
+	plan, err := Parse(data, nil)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(plan.Candidates) != 1 || plan.Candidates[0].ID != "fixture-cask" || plan.Candidates[0].Installed != "1.0" || plan.Candidates[0].Target != "2.0" {
+		t.Fatal(plan)
+	}
+	if len(plan.Exclusions) != 1 || plan.Exclusions[0].Name != "fixture-cask-held" || plan.Exclusions[0].Reason != "pinned" {
+		t.Fatal(plan.Exclusions)
+	}
+	data, err = os.ReadFile("testdata/homebrew-7.0.10-darwin-arm64-empty.json")
+	if err != nil {
+		t.Fatal(err)
+	}
+	plan, err = Parse(data, nil)
+	if err != nil || len(plan.Candidates) != 0 || len(plan.Exclusions) != 0 {
+		t.Fatal(plan, err)
+	}
+}

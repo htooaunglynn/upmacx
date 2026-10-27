@@ -73,6 +73,9 @@ func (a App) Summary(r updater.Result) {
 	if len(r.Outcome.Completed) > 0 {
 		fmt.Fprintf(a.Out, " (completed: %s)", Safe(strings.Join(r.Outcome.Completed, ", ")))
 	}
+	if r.Status == "interrupted" && r.Stage != "" {
+		fmt.Fprintf(a.Out, "; unfinished stage: %s", r.Stage)
+	}
 	fmt.Fprintln(a.Out)
 }
 func (a App) Interrupted() {
@@ -116,3 +119,5 @@ func confirmationLine(ctx context.Context, in io.Reader) (string, error) {
 		return "", ctx.Err()
 	}
 }
+
+func (a App) Stage(id, stage string) { fmt.Fprintf(a.Out, "[%s] %s\n", id, stage) }
