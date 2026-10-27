@@ -1,0 +1,23 @@
+Usage: brew cleanup [options] [formula|cask ...]
+
+Remove stale lock files and outdated downloads for all formulae and casks, and
+remove old versions of installed formulae. If arguments are specified, only do
+this for the given formulae and casks. Removes all downloads more than 120 days
+old. This can be adjusted with $HOMEBREW_CLEANUP_MAX_AGE_DAYS.
+
+      --prune                      Remove all cache files older than specified
+                                   days. If you want to remove everything, use
+                                   --prune=all.
+  -n, --dry-run                    Show what would be removed, but do not
+                                   actually remove anything.
+  -s, --scrub                      Scrub the cache, including downloads for even
+                                   the latest versions. Note that downloads for
+                                   any installed formulae or casks will still
+                                   not be deleted. If you want to delete those
+                                   too: rm -rf "$(brew --cache)"
+      --prune-prefix               Only prune the symlinks and directories from
+                                   the prefix and remove no other files.
+  -d, --debug                      Display any debugging information.
+  -q, --quiet                      Make some output more quiet.
+  -v, --verbose                    Make some output more verbose.
+  -h, --help                       Show this message.

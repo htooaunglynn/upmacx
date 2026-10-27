@@ -1,0 +1,58 @@
+name: Draft release
+on:
+  push:
+    tags:
+      - 'v*'
+permissions:
+  contents: read
+jobs:
+  prepare:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - uses: actions/setup-go@v5
+        with:
+          go-version: '1.27.3'
+          cache: false
+      - run: go test -race ./...
+      - name: Download exact tag source and prepare artifacts
+        env:
+          RELEASE_TAG: ${{ github.ref_name }}
+        run: |
+          curl --fail --location --retry 0 \
+            --output "$RUNNER_TEMP/upmacx-source.tar.gz" \
+            "https://github.com/${GITHUB_REPOSITORY}/archive/refs/tags/${RELEASE_TAG}.tar.gz"
+          go run ./cmd/releaseprep --tag "$RELEASE_TAG" \
+            --source-archive "$RUNNER_TEMP/upmacx-source.tar.gz" \
+            --out "$RUNNER_TEMP/upmacx-release"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: release-candidate
+          path: ${{ runner.temp }}/upmacx-release/
+          if-no-files-found: error
+  draft:
+    needs: prepare
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: release-candidate
+          path: ${{ runner.temp }}/upmacx-release
+      - name: Create draft for maintainer review
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+          RELEASE_TAG: ${{ github.ref_name }}
+        run: |
+          artifact_dir="$RUNNER_TEMP/upmacx-release"
+          (cd "$artifact_dir" && sha256sum --check checksums.txt)
+          gh release create "$RELEASE_TAG" --verify-tag --draft \
+            --title "$RELEASE_TAG" --notes-file "$artifact_dir/build-info.txt" \
+            "$artifact_dir/upmacx_${RELEASE_TAG}_darwin_arm64.tar.gz" \
+            "$artifact_dir/upmacx_${RELEASE_TAG}_darwin_amd64.tar.gz" \
+            "$artifact_dir/checksums.txt" "$artifact_dir/build-info.txt"

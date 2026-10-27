@@ -1,0 +1,4 @@
+/dist/
+/upmacx
+*.test
+coverage.out

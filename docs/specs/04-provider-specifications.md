@@ -11,12 +11,14 @@ Tool installation instructions belong in README; upmacx never executes them. Opt
 ## Homebrew (`brew`)
 
 - Detect `brew` on PATH and probe `brew --version`. Support formula and cask discovery through `brew outdated --json=v2`; refresh with `brew update` first.
-- Set `HOMEBREW_NO_INSTALL_CLEANUP=1`, `HOMEBREW_NO_AUTO_UPDATE=1`, and `HOMEBREW_UPGRADE_GREEDY=0` on discovery/apply commands; explicit refresh still runs. These overrides prevent extra implicit refresh/cleanup and greedy environment settings from broadening the plan. Verify effective behavior in fixtures/smoke tests.
+- Set `HOMEBREW_NO_INSTALL_CLEANUP=1`, `HOMEBREW_NO_AUTO_UPDATE=1`, and `HOMEBREW_UPGRADE_GREEDY=0` on discovery/apply commands; explicit refresh still runs. Also clear `HOMEBREW_UPGRADE_GREEDY_CASKS` and set `HOMEBREW_UPGRADE_GREEDY_LATEST=0` / `HOMEBREW_UPGRADE_GREEDY_AUTO_UPDATES=0` so inherited per-cask/greedy settings cannot broaden the plan. Homebrew 7.0.10 source confirms `0` disables boolean greedy settings. Verify effective behavior in fixtures/smoke tests.
 - Parse separate formula/cask arrays and their identifiers/versions. Use `brew list --pinned` to exclude pinned formulae. Respect cask pinning where supported, and normal non-greedy eligibility; do not force `auto_updates`/`latest` casks. Capability tests must cover upstream pinning representation.
 - Apply each candidate using `brew upgrade --formula ID` or `brew upgrade --cask ID`. Validate names including tap-qualified tokens; never pass display names. Dependency changes remain Homebrew-managed. Check-only runs neither command.
 - With `--clean` and consent, run `brew cleanup` once after a successful brew stage, including an empty upgrade plan. Skip after any brew refresh/discovery/apply failure. Cleanup failure marks brew failed but preserves previous upgrade outcomes. Never run autoremove or aggressive prune options.
 - Cask installers may request authentication or require closing an app; forward their interaction. Failed installers are errors, not automatic reasons to retry with force.
 - Acceptance: formula-only, cask-only, mixed, pinned, self-updating, no changes, upgrade failure, cleanup failure, and automatic-cleanup suppression are covered. Explicit IDs can behave differently from bulk upgrades, so eligibility filters must be tested before shipping.
+
+Development evidence: [7.0.10 compatibility record](../../internal/providers/brew/testdata/README.md). This adapter is available for local development only; native installation and publication gates remain outstanding. Source-reviewed synthetic schemas are not recorded as native discovery or installation results. Other versions remain unavailable until their schema/environment semantics and help capabilities are reviewed.
 
 Reference: [Homebrew manual](https://docs.brew.sh/Manpage). The manual documents automatic cleanup controls; opt-in cleanup is an upmacx policy layered on those controls.
 

@@ -1,0 +1,1 @@
+{"formulae":[{"name":"example/tap/tool","installed_versions":["1.0"],"current_version":"2.0","pinned":false,"pinned_version":null},{"name":"held","installed_versions":["1"],"current_version":"2","pinned":true,"pinned_version":"1"}],"casks":[{"name":"example-app","installed_versions":["1.0"],"current_version":"2.0","pinned":false,"pinned_version":null}]}

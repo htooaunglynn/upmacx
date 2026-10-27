@@ -6,7 +6,7 @@ Implement tests before each provider is enabled. Inject Runner, streams, termina
 
 Set fake PATH and temporary package-manager homes/prefixes for subprocess tests. Assert every requested command is fake; fail closed on an unexpected executable. Network access is unnecessary. No live update smoke test runs in the normal CI suite, and `--check` against the host is not an automated test substitute.
 
-CI from phase 1: `go test ./...`, `go vet ./...`, formatting check without rewriting files, and `CGO_ENABLED=0 GOOS=darwin GOARCH=arm64` / `amd64` builds. Run orchestration/process tests on macOS to verify signal groups. Use a Linux job for portable parsing/tests if convenient; Darwin process code needs build tags and actual macOS coverage. Cross-build success does not prove an Intel binary runs; native architecture smoke evidence is required for public support claims.
+CI from phase 1: `go test ./...`, `go vet ./...`, formatting check without rewriting files, and `CGO_ENABLED=0 GOOS=darwin GOARCH=arm64` / `amd64` builds. Run orchestration/process tests on macOS to verify signal groups. On Darwin, include a real pseudo-terminal test using only the fake Go test executable: verify child input, Ctrl-C, signal propagation and foreground restoration. This does not replace controlled installer/authentication tests. Include an interrupted leader whose signal-ignoring descendant retains stdout/stderr, and assert prompt cancellation rather than a capture timeout. Use a Linux job for portable parsing/tests if convenient; Darwin process code needs build tags and actual macOS coverage. Cross-build success does not prove an Intel binary runs; native architecture smoke evidence is required for public support claims.
 
 ## CLI and orchestrator acceptance matrix
 

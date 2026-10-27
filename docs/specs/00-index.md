@@ -1,6 +1,6 @@
 # upmacx specification index
 
-Status: documentation baseline; no application exists yet. Prepared 2026-10-26.
+Status: Phase 1 local development implementation; native release gates remain pending. Updated 2026-10-27.
 
 Read these documents in order. Requirements describe intended behavior, not implemented or tested capabilities. Provider command references were inspected on the preparation date; compatibility must be demonstrated with fixtures and versioned smoke-test evidence before shipping each adapter.
 
@@ -24,7 +24,8 @@ Every agent and model must follow [the root agent instructions](../../AGENTS.md)
 - Cleanup requires `--clean`; system installation requires `--system`.
 - Never automatically install missing dependencies, escalate privileges, or reboot.
 - Default license MIT; two GitHub repositories; source-build Homebrew formula.
-- Documentation only in this task. No Go module, application code, workflows, formula file, Git initialization, package update, or publication is performed.
+- The original planning task was documentation only. The subsequent implementation request authorizes Phase 1 local code and tests; publication remains a separate action.
+- Confirmed module path from the existing Git remote: `github.com/htooaunglynn/upmacx`. MIT copyright holder approved by the user: `htooaunglynn`.
 
 ## Authority and readiness
 

@@ -1,0 +1,42 @@
+Usage: brew outdated [options] [formula|cask ...]
+
+List installed casks and formulae that have an updated version available. By
+default, version information is displayed in interactive shells and suppressed
+otherwise.
+
+  -q, --quiet                      List only the names of outdated kegs (takes
+                                   precedence over --verbose).
+  -v, --verbose                    Include detailed version information.
+      --formula, --formulae        List only outdated formulae.
+      --cask, --casks              List only outdated casks.
+      --json                       Print output in JSON format. There are two
+                                   versions: v1 and v2. v1 is deprecated
+                                   and is currently the default if no version is
+                                   specified. v2 prints outdated formulae and
+                                   casks.
+      --minimum-version, --min-version
+                                   Only list a named formula or cask with an
+                                   installed version below the given minimum
+                                   version.
+      --vulnerable                 Only list outdated formulae with open
+                                   vulnerabilities from OSV.dev. Stop if any
+                                   candidate cannot be reliably scanned. Implies
+                                   --formula.
+      --severity                   Only select findings at or above low,
+                                   medium, high or critical.
+      --fetch-HEAD                 Fetch the upstream repository to detect if
+                                   the HEAD installation of the formula is
+                                   outdated. Otherwise, the repository's HEAD
+                                   will only be checked for updates when a new
+                                   stable or development version has been
+                                   released.
+  -g, --greedy                     Also include outdated casks with version
+                                   :latest and auto_updates true casks that
+                                   would otherwise be skipped. Enabled by
+                                   default if $HOMEBREW_UPGRADE_GREEDY is set.
+      --greedy-latest              Also include outdated casks including those
+                                   with version :latest.
+      --greedy-auto-updates        Also include outdated auto_updates true
+                                   casks that would otherwise be skipped.
+  -d, --debug                      Display any debugging information.
+  -h, --help                       Show this message.

@@ -1,6 +1,6 @@
 # Architecture and execution
 
-## Project layout to implement later
+## Project layout
 
 - `cmd/upmacx/main.go`: version variable, OS signals, dependency wiring, exit status only.
 - `internal/cli`: parsing, usage, terminal detection, confirmation and rendering.
@@ -46,6 +46,6 @@ Use `LC_ALL=C` for text parsers, structured output where supported, and fixtures
 
 Build immutable plans for all providers, render once, confirm once, execute in canonical order. Refresh checks may access network and caches. Before each mutation ensure its original executable still exists; failure stops that provider. Child tools remain authoritative on applicability and dependency resolution; no silent broadening to newly discovered top-level packages. A failed multi-item command may already have changed packages: label its outcome partial/unknown, not “nothing changed.”
 
-Set a process group on Darwin and propagate SIGINT/SIGTERM to that group. Allow five seconds to exit, then kill and reap the group. Inject the timer in tests. No fixed timeout for interactive upgrades; cancellation remains available. Captured checks have a five-minute timeout per command and report timeout as provider failure. Never reuse prompt input buffering for child stdin.
+Set a process group on Darwin and propagate SIGINT/SIGTERM to that group. Allow five seconds to exit, then kill and reap the group. Observe the direct child exit/signal before draining output inherited by descendants; an open descendant pipe must not delay signal notification until the capture timeout. Keep the cancellation watcher alive until output drains and group cleanup completes. Inject the timer in tests. No fixed timeout for interactive upgrades; cancellation remains available. Captured checks have a five-minute timeout per command and report timeout as provider failure. Never reuse prompt input buffering for child stdin.
 
 No persistent state/database, plugin loading, automatic retry, recovery engine or telemetry is required. A rerun rediscovers actual package-manager state.
