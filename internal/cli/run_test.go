@@ -113,7 +113,7 @@ func TestRunMatrix(t *testing.T) {
 			if tc.terminal {
 				in = strings.NewReader(tc.answer)
 			}
-			a := App{Version: "dev", OS: "darwin", UID: 501, In: in, Out: &out, Err: &errout, Terminal: func() bool { return tc.terminal }, Providers: []updater.Provider{f}}
+			a := App{Arch: "arm64", Version: "dev", OS: "darwin", UID: 501, In: in, Out: &out, Err: &errout, Terminal: func() bool { return tc.terminal }, Providers: []updater.Provider{f}}
 			if code := a.Run(context.Background(), tc.args); code != tc.code {
 				t.Fatalf("code %d want %d: %s", code, tc.code, errout.String())
 			}
@@ -141,7 +141,7 @@ func TestInfoAndRefusal(t *testing.T) {
 	}{{"linux", 0, []string{"--help", "--version"}, 0}, {"linux", 0, []string{"--version"}, 0}, {"linux", 501, nil, 1}, {"darwin", 0, nil, 1}, {"darwin", 501, []string{"--unknown"}, 2}} {
 		var log []string
 		var b bytes.Buffer
-		a := App{OS: tc.os, UID: tc.uid, Version: "v0.1.0", Out: &b, Err: &b, Providers: []updater.Provider{&fake{id: "brew", log: &log}}}
+		a := App{Arch: "arm64", OS: tc.os, UID: tc.uid, Version: "v0.1.0", Out: &b, Err: &b, Providers: []updater.Provider{&fake{id: "brew", log: &log}}}
 		if got := a.Run(context.Background(), tc.args); got != tc.code {
 			t.Fatal(got)
 		}
@@ -153,7 +153,7 @@ func TestInfoAndRefusal(t *testing.T) {
 func TestDiscoveryBeforeMutationAndFailure(t *testing.T) {
 	var log []string
 	var b bytes.Buffer
-	a := App{OS: "darwin", UID: 501, Out: &b, Err: &b, Providers: []updater.Provider{&fake{id: "brew", log: &log, candidates: 1, applyFail: true}, &fake{id: "second", log: &log, candidates: 1}}}
+	a := App{Arch: "arm64", OS: "darwin", UID: 501, Out: &b, Err: &b, Providers: []updater.Provider{&fake{id: "brew", log: &log, candidates: 1, applyFail: true}, &fake{id: "second", log: &log, candidates: 1}}}
 	if a.Run(context.Background(), []string{"--yes"}) != 1 {
 		t.Fatal("expected failure")
 	}
@@ -171,7 +171,7 @@ func TestSignal(t *testing.T) {
 		cancel(process.SignalError{Signal: sig})
 		var b bytes.Buffer
 		var log []string
-		a := App{OS: "darwin", UID: 501, Out: &b, Err: &b, Providers: []updater.Provider{&fake{id: "brew", log: &log}}}
+		a := App{Arch: "arm64", OS: "darwin", UID: 501, Out: &b, Err: &b, Providers: []updater.Provider{&fake{id: "brew", log: &log}}}
 		want := 130
 		if sig == syscall.SIGTERM {
 			want = 143
@@ -190,7 +190,7 @@ func TestCancellationPreservesPriorFailure(t *testing.T) {
 	defer cancel(nil)
 	var log []string
 	var b bytes.Buffer
-	a := App{OS: "darwin", UID: 501, Out: &b, Err: &b, Providers: []updater.Provider{
+	a := App{Arch: "arm64", OS: "darwin", UID: 501, Out: &b, Err: &b, Providers: []updater.Provider{
 		&fake{id: "brew", log: &log, discoverFail: true},
 		&fake{id: "second", log: &log, candidates: 1, cancel: cancel},
 		&fake{id: "third", log: &log, candidates: 1},
@@ -206,6 +206,27 @@ func TestCancellationPreservesPriorFailure(t *testing.T) {
 	for _, entry := range log {
 		if entry == "third:apply" {
 			t.Fatal("scheduled mutation after cancellation")
+		}
+	}
+}
+
+func TestAppleSiliconOnly(t *testing.T) {
+	for _, args := range [][]string{nil, {"--help"}, {"--version"}} {
+		var log []string
+		var out, errout bytes.Buffer
+		a := App{OS: "darwin", Arch: "amd64", UID: 501, Version: "dev", Out: &out, Err: &errout, Providers: []updater.Provider{&fake{id: "brew", log: &log}}}
+		want := 0
+		if len(args) == 0 {
+			want = 1
+		}
+		if code := a.Run(context.Background(), args); code != want {
+			t.Fatal(code, want)
+		}
+		if len(log) > 0 {
+			t.Fatal("Intel invocation touched provider", log)
+		}
+		if want == 1 && !strings.Contains(errout.String(), "Apple Silicon") {
+			t.Fatal(errout.String())
 		}
 	}
 }

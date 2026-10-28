@@ -1,5 +1,11 @@
 # Homebrew compatibility evidence
 
+Current evidence: the [full protected-prefix native run](../../../../docs/validation/2026-10-28-homebrew-full-arm64.md)
+passed on 2026-10-28. Earlier unverified/blocked statements below describe their
+original baseline and are superseded by the dated acquisitions.
+
+## Original source-reviewed baseline
+
 Development adapter: Homebrew 7.0.10, inspected 2026-10-26 on Darwin arm64.
 The version and four help text files were captured with `brew --version` and
 `brew help outdated`, `brew help list`, `brew help upgrade`, `brew help cleanup`.
@@ -29,7 +35,7 @@ Actual empty/outdated discovery exit statuses and output, self-updating cask
 eligibility, cleanup suppression during real installations, and controlled
 formula/cask upgrades remain unverified. Acquire those fixtures in a disposable
 Homebrew prefix/Mac, record OS version and architecture, then run native arm64
-and amd64 smoke tests before publication or broadening compatibility. No public
+smoke tests before publication or broadening compatibility. No public
 release compatibility is claimed.
 
 ## Native cask fixtures acquired 2026-10-27
@@ -48,5 +54,22 @@ The real updater also passed cask upgrades, explicit cleanup and a controlled
 partial failure. These results supersede the earlier “unverified” statements
 above for this narrow cask-fixture scope only. Formula builds were blocked by
 Homebrew's inherited-sandbox guard, and real vendor application authentication,
-formula keg-retention evidence, native Intel and upmacx formula acceptance remain
+formula keg-retention evidence, upmacx formula acceptance remain
 pending. The original `mixed.json` remains explicitly synthetic.
+
+## Full native fixture run acquired 2026-10-28
+
+`homebrew-7.0.10-darwin-arm64-mixed.json` is an actual `brew outdated --json=v2`
+result (exit 0) from the full protected-prefix fixture run, with one formula and
+one cask eligible for 1.0 → 2.0 and pinned formula/cask exclusions. Self-updating
+casks are absent. This is distinct from the original synthetic `mixed.json`.
+
+[Full native evidence](../../../../docs/validation/2026-10-28-homebrew-full-arm64.md)
+records successful source formula and cask fixture upgrades, check-only behavior,
+old-keg retention without cleanup, explicit cleanup and partial failure with
+cleanup skipped. The prior formula-build blocker was caused by locating the
+manager in `/private/tmp`, which Homebrew's sandbox intentionally permits writes
+to. A protected project-local prefix fixes it without disabling sandboxing.
+Real vendor authorization and tagged upmacx source-formula acceptance remain
+pending; earlier blanket claims that fixture formula builds were blocked are
+historical and superseded for the corrected layout.

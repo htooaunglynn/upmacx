@@ -2,6 +2,12 @@
 
 ## Unreleased — Phase 1 development
 
+- Fix the native test-prefix layout: reject broadly writable temporary/cache
+  roots and validate real formula/cask upgrades under normal Homebrew sandboxing.
+
+- Scope changed to Apple Silicon only: reject Intel execution, build/publish only
+  arm64, restrict the Homebrew formula to arm64, and remove Intel CI/gates.
+
 - Add Go CLI, Homebrew plan/discovery, explicit upgrades and opt-in cleanup.
 - Add safe confirmation, check-only execution, signal cancellation and summaries.
 - Add isolated fake-tool tests, Homebrew 7.0.10 source-reviewed fixtures and CI.
@@ -15,6 +21,6 @@
 - Enforce canonical provider ordering and clone discovered/approved plans.
 - Report stage progress and interrupted cleanup while preserving completed IDs.
 - Accept reviewed Homebrew version headers with trailing tap-version details.
-- Add explicit native Intel CI and opt-in isolated native Homebrew acceptance.
-- Provider installation, native Intel validation, real tagged release archives and
+- Add opt-in isolated native Homebrew acceptance.
+- Provider installation, real tagged release archives and
   Homebrew formula audit/install/test remain pending. No release is published.

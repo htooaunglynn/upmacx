@@ -1,0 +1,42 @@
+{
+  "formulae": [
+    {
+      "name": "upmacx/acceptance/fixture-held",
+      "installed_versions": [
+        "1.0"
+      ],
+      "current_version": "2.0",
+      "pinned": true,
+      "pinned_version": "1.0"
+    },
+    {
+      "name": "upmacx/acceptance/fixture-tool",
+      "installed_versions": [
+        "1.0"
+      ],
+      "current_version": "2.0",
+      "pinned": false,
+      "pinned_version": null
+    }
+  ],
+  "casks": [
+    {
+      "name": "fixture-cask",
+      "installed_versions": [
+        "1.0"
+      ],
+      "current_version": "2.0",
+      "pinned": false,
+      "pinned_version": null
+    },
+    {
+      "name": "fixture-cask-held",
+      "installed_versions": [
+        "1.0"
+      ],
+      "current_version": "2.0",
+      "pinned": true,
+      "pinned_version": "1.0"
+    }
+  ]
+}

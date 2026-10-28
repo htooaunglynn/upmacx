@@ -68,6 +68,7 @@ Usage: upmacx [--check] [--yes] [--clean] [--providers brew]
   --providers   Comma-separated provider IDs (shipped: brew)
   --help, -h    Show help without running providers
   --version     Show version without running providers
+Apple Silicon (arm64) Macs only. Intel Macs are unsupported.
 Only Homebrew formulae and eligible casks are covered. System updates and
 other package managers are unavailable. Cleanup is opt-in. No automatic
 privilege escalation, dependency installation, or reboot.

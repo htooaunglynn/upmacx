@@ -1,10 +1,10 @@
 # Project progress and handoff
 
-Last updated: 2026-10-27 (Asia/Yangon).
+Last updated: 2026-10-28 (Asia/Yangon).
 
 ## Current state
 
-Phase 1 local application and isolated test implementation is present. Go module, CLI, Homebrew adapter, MIT license, README and CI configuration have been added. Controlled native arm64 cask fixture acceptance now passes; formula builds, real vendor authentication, Intel execution and source-formula validation remain pending, so Phase 1 is not complete or release-ready. Only isolated local test casks were installed/upgraded; no ordinary user software, real project tags/releases, tap publication or public release was changed. Development binaries are ignored build outputs. Release preparation tooling and a temporary tagged-fixture rehearsal now exist; no real release artifacts or source formula have been prepared.
+Phase 1 local application and isolated test implementation is present. Go module, CLI, Homebrew adapter, MIT license, README and CI configuration have been added. Controlled native arm64 formula and cask fixture acceptance now passes, including source builds, old-keg retention and cleanup; real vendor authentication and tagged upmacx source-formula validation remain pending, so Phase 1 is not complete or release-ready. Only isolated local test formulae/casks were installed/upgraded; no ordinary user software, real project tags/releases, tap publication or public release was changed. Development binaries are ignored build outputs. Release preparation tooling and a temporary tagged-fixture rehearsal now exist; no real release artifacts or source formula have been prepared.
 
 Follow [AGENTS.md](../../AGENTS.md), [the specification index](00-index.md) and [the delivery sequence](07-step-by-step-delivery.md). This file records evidence and status; it does not override requirements.
 
@@ -14,11 +14,13 @@ Follow [AGENTS.md](../../AGENTS.md), [the specification index](00-index.md) and 
 | --- | --- | --- | --- |
 | Specification baseline, 00–07 | Complete | Internal links, code fences and file count checked; provider documentation reviewed | Not applicable |
 | Agent instructions and progress tracking | Complete | Local Markdown links and expected files checked | Not applicable |
-| Phase 1: foundation and Homebrew | In progress: application, tests, CI, docs and release preparation tooling implemented | Local isolated tests/race, vet, formatting and Darwin cross-builds pass; Ubuntu arm64 native test binaries pass; arm64 real cask subset passed; formula/Intel/release gates pending | Not started |
+| Phase 1: foundation and Homebrew | In progress: application, tests, CI, docs and release preparation tooling implemented | Local isolated tests/race, vet, formatting and Darwin cross-builds pass; Ubuntu arm64 native test binaries pass; arm64 real formula/cask fixture suite passed; vendor/tagged-formula/release gates pending | Not started |
 | Phase 2: macOS software updates | Not started | Not run | Not started |
 | Phase 3: Mac App Store | Not started | Not run | Not started |
 | Phase 4: developer tools | Not started | Not run | Not started |
 | Phase 5: stable release | Not started | Not run | Not started |
+
+Historical entries below retain the architecture scope in effect on their dates. The user changed current support to Apple Silicon only on 2026-10-28; earlier Intel and dual-architecture prerequisites are superseded.
 
 ## Completed work and evidence
 
@@ -40,8 +42,8 @@ Follow [AGENTS.md](../../AGENTS.md), [the specification index](00-index.md) and 
 
 - Module owner confirmed from existing Git remote (`github.com/htooaunglynn/upmacx`); user approved MIT holder `htooaunglynn`. Tap repository availability remains unverified.
 - Release tags, actual source/archive checksums, repositories and publication credentials are future maintainer inputs.
-- Homebrew 7.0.10 read-only version/help evidence, synthetic formula fixtures and acquired native cask fixtures exist. Automated tests and controlled arm64 cask acceptance passed. Native Intel, real formula builds/keg-retention, real vendor authorization and source-formula audit/install/test remain unrun or blocked. No public release readiness is claimed.
-- Controlled disposable Homebrew environments for both architectures and an immutable release tag/source checksum are required for the remaining Phase 1 release gates.
+- Homebrew 7.0.10 read-only version/help evidence, original synthetic fixtures and acquired native mixed formula/cask fixtures exist. Automated tests and full controlled arm64 fixture acceptance passed. Real vendor authorization and tagged upmacx source-formula audit/install/test remain outstanding. No public release readiness is claimed.
+- The Apple Silicon fixture environment works with a protected project-local prefix. Real vendor authorization evidence and an immutable release tag/source checksum are still needed for the remaining gates.
 
 ### 2026-10-26 — Phase 1 local implementation
 
@@ -98,9 +100,27 @@ Follow [AGENTS.md](../../AGENTS.md), [the specification index](00-index.md) and 
 - Added explicit `macos-15-intel` CI alongside arm64 macOS/Linux and native macOS help/version smoke commands. This is workflow authoring, not a hosted/native Intel pass. The designated macOS UTM guest is no longer registered; only Ubuntu was listed.
 - Validation: standard tests, race tests, vet, nonmutating formatting, both Darwin builds, arm64 help/version with an empty executable search PATH, workflow YAML/Python syntax, Markdown links/fences and `git diff --check` passed. Normal Homebrew source checkout remains unchanged. No real project tag, release candidate, source checksum, tap change or publication was produced; the existing staged changes were preserved.
 
+### 2026-10-28 — Apple Silicon-only scope and full test authorization
+
+- User explicitly removed Intel support and authorized full access for testing. Updated specifications 00–07, README, changelog, acceptance ledger and native-runner requirements. Historical 2026-10-27 validation records are marked as preceding this scope change; no earlier evidence is rewritten as a current support claim.
+- Added an injected architecture to [CLI execution](../../internal/cli/run.go) and wired actual GOARCH in [main](../../cmd/upmacx/main.go). Non-arm64 execution is refused before provider operations or temporary setup; help/version remain pure informational invocations. [CLI tests](../../internal/cli/run_test.go) cover Intel refusal and zero provider calls.
+- [Release preparation](../../internal/release/release.go) now produces only the Darwin arm64 archive/checksum and generates `depends_on arch: :arm64`. [Release tests](../../internal/release/release_test.go) assert one arm64 build/checksum and the formula restriction. Removed Intel CI/build/upload paths and added a native arm64 runner assertion. Removed the obsolete ignored local amd64 build generated by earlier work; no tracked user work was discarded.
+- Rehearsed the actual release helper in a separate temporary test repository tagged `v0.0.0`: one arm64 archive, its checksum, archive members/mode, arm64-only build metadata, native injected version output and formula Ruby syntax passed. No real project tag, release or tap mutation occurred.
+- Retried the complete local fixture formula/cask acceptance command with approved unsandboxed execution under the user's full testing authorization. The first formula install still failed Homebrew's own `Inherited sandbox permits writes to .../brew/bin/brew` check. No security-disable flag or Homebrew patch was used. An attempt to open ordinary Terminal through Computer Use was separately blocked by the tool with “not allowed to use the app ... for safety reasons”; no alternative GUI shell was used to evade that restriction.
+- Validation passed: standard/race tests, vet, formatting, Darwin arm64 build and native help/version, one-archive release rehearsal, YAML/Python syntax, documentation links/fences and diff whitespace checks. Intel validation is no longer a gate. Real formula build/keg retention, vendor authorization and tagged source-formula audit/install/test remain outstanding; hosted CI/publication have not run.
+
+### 2026-10-28 — Corrected native fixture layout; full formula/cask pass
+
+- User reproduced the inherited-sandbox error in an ordinary Terminal. Corrected the earlier attribution to Codex: Homebrew's macOS `allow_write_system_temp` grants writes under `/private/tmp`, `/private/var/tmp` and per-user temporary/cache paths. Locating the manager there left its own executable writable, so its protection check correctly failed.
+- Added [layout validation](../../scripts/native_brew_paths.py) before test-root setup, [Python regressions](../../scripts/test_native_brew_paths.py) and a CI step. Unsafe temporary/Xcode cache roots are rejected with a useful error before cloning/installing. Updated runnable examples to `$PWD/.native-tests/<new-run>` and ignored native test artifacts/bytecode. No Homebrew patches, sandbox disable flags, privilege changes or executable-permission workarounds were used.
+- The first protected-prefix run completed the intended manager operations but exposed a harness assertion expecting the intentional error only on stderr. Homebrew's PTY delivered the diagnostic on stdout; the assertion now checks both streams and still requires the specific failure text.
+- Fresh full native rerun exited 0: formula/cask source installation and discovery, both pin exclusions, non-greedy/self-update exclusion, check-only, nonterminal refusal without mutation, upgrades, old formula keg retention with implicit cleanup suppressed, explicit cleanup, and an intentional later formula build failure retaining earlier successes while skipping cleanup all passed.
+- Added acquired [native mixed JSON](../../internal/providers/brew/testdata/homebrew-7.0.10-darwin-arm64-mixed.json) and a parser regression. [Full evidence](../validation/2026-10-28-homebrew-full-arm64.md) and [acceptance ledger](../validation/phase-1-acceptance.md) distinguish these fixture results from unpassed distribution-formula/vendor-authorization gates.
+- Validation: layout unit tests, unsafe-root rejection before setup, full real native fixture run, standard/race Go tests, vet, Python/YAML syntax, formatting, documentation links/fences and diff whitespace checks pass. Existing user package installations and normal Homebrew source were not modified. No real project tag, tap update or publication occurred.
+
 ## Next step
 
-Run the formula-inclusive native acceptance command from [the ledger](../validation/phase-1-acceptance.md) in an ordinary terminal/disposable Mac outside the inherited agent sandbox, leaving Homebrew's sandbox enabled. Complete real vendor authorization-denial handling and formula old-keg retention/cleanup evidence. Execute the authored Intel CI/native acceptance on an Intel host. After those gates, prepare real clean-tag archives and source-checksummed formula with [releaseprep](../../cmd/releaseprep/main.go), then audit/install/test it on the documented architectures and validate the hosted draft-release workflow. A real immutable project tag/source archive and native environments are still required; fake or temporary fixture releases do not satisfy these gates. Phase 1 remains in progress and Phase 2 has not started.
+The formula/cask fixture gate is complete; no further permission grant or VM is needed for it. Keep future roots outside system temporary/cache allowances and use the documented project-local path. Remaining Phase 1 gates are real vendor installer authorization evidence, actual arm64 tagged upmacx source-formula audit/install/test and hosted draft workflow validation. Prepare real source/archive checksums only from an authorized clean project tag; temporary fixture tags are not release evidence. Intel remains unsupported. Phase 1 is still in progress; Phase 2 has not started.
 
 ## Maintenance format
 

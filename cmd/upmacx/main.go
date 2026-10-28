@@ -24,8 +24,8 @@ func run() int {
 		fmt.Fprintln(os.Stderr, err)
 		return 2
 	}
-	app := cli.App{Version: version, OS: runtime.GOOS, UID: os.Geteuid(), In: os.Stdin, Out: os.Stdout, Err: os.Stderr, Terminal: isTerminal}
-	if opts.Help || opts.Version || runtime.GOOS != "darwin" || os.Geteuid() == 0 {
+	app := cli.App{Version: version, OS: runtime.GOOS, Arch: runtime.GOARCH, UID: os.Geteuid(), In: os.Stdin, Out: os.Stdout, Err: os.Stderr, Terminal: isTerminal}
+	if opts.Help || opts.Version || runtime.GOOS != "darwin" || runtime.GOARCH != "arm64" || os.Geteuid() == 0 {
 		return app.Run(context.Background(), os.Args[1:])
 	}
 	dir, err := os.MkdirTemp("", "upmacx-")

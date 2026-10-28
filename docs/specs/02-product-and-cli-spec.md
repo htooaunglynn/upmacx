@@ -21,7 +21,7 @@ Only providers shipped in the current release appear in help and are valid IDs. 
 
 ## Run sequence and consent
 
-1. Parse without invoking tools. Help/version work on any OS; execution requires Darwin and refuses effective UID 0 so Homebrew/user prefixes are not accidentally managed as root.
+1. Parse without invoking tools. Help/version work on any OS; execution requires Darwin on arm64 (Apple Silicon only; Intel is unsupported) and refuses effective UID 0 so Homebrew/user prefixes are not accidentally managed as root.
 2. Detect, refresh, and discover sequentially in order: brew, mas, npm, pnpm, pipx, cargo, softwareupdate. Discover all before starting changes. A failed provider does not block independent providers.
 3. Print per-provider candidates with current/target version where available, exclusions and scope. Display system candidates as report-only unless `--system`. List cleanup as a separate action. Package managers may resolve dependency changes beyond top-level candidates; state this before confirmation.
 4. If eligible work exists, prompt `Continue with planned changes? [y/N]: `. Accept only trimmed case-insensitive `y` or `yes`; all other input including EOF declines. Decline cancels all mutation, including cleanup. With nonterminal stdin and no `--yes`, do not read input: report confirmation required and exit 2 if work exists. No work requires no prompt.

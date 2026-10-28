@@ -1,6 +1,6 @@
 # Phase 1 acceptance ledger
 
-Updated 2026-10-27. This separates implemented code from acceptance evidence.
+Updated 2026-10-28. Intel support was removed by explicit user instruction; remaining gates are arm64 only. This separates implemented code from acceptance evidence.
 It does not waive any requirement in the numbered specifications.
 
 | Gate | Current evidence | Status |
@@ -12,13 +12,13 @@ It does not waive any requirement in the numbered specifications.
 | Capture limits, timeouts, process-group cancellation | Darwin tests/race and Linux native test binaries pass | Validated locally |
 | Interactive input, Ctrl-C, parent foreground restoration | Native Darwin pseudo-terminal tests pass with fake child | Terminal plumbing validated; real installer pending |
 | Real Homebrew version/help | 7.0.10 version and help captured; multiline version probe regression added | Read-only validation only |
-| Real outdated/pinned/auto-updating cask schemas | [Real arm64 cask run](2026-10-27-homebrew-arm64.md), empty/pinned schemas and updater plans | Cask validation passed; real formula schema pending |
-| Real formula/cask upgrades and automatic cleanup suppression | Real local cask upgrades, pinning, self-update exclusion and explicit cleanup passed; formula build blocked | Cask subset passed; formula/keg suppression pending |
+| Real formula/cask outdated, pins and self-update eligibility | [Full native run](2026-10-28-homebrew-full-arm64.md), acquired empty/mixed schemas | Validated on arm64 local fixtures |
+| Real formula/cask upgrades and automatic cleanup suppression | Real source formula/cask upgrades, old-keg retention, explicit cleanup and partial failure | Validated on arm64 local fixtures |
 | Authorization denial and partial mutation through real manager | Real cask preflight failure after an earlier completed upgrade passed; fake permission tests pass | Partial mutation validated; real vendor authorization pending |
-| Test/race/vet/format, Darwin arm64/amd64 builds | Local checks pass | Validated locally |
-| Native Intel executable and process tests | Explicit Intel CI job authored | Hosted/native Intel execution pending |
-| Dual archives, binary checksums, source-checksummed formula generator | Temporary tagged fixture rehearsal passed; helper tests pass | Tooling validated; real tagged artifacts pending |
-| Formula strict audit, source install and test on native architectures | Ruby syntax check of temporary fixture recipe passed | Homebrew acceptance pending |
+| Test/race/vet/format, Darwin arm64 build | Local checks pass | Validated locally |
+| Apple Silicon-only boundary | Intel runtime refusal, arm64-only artifacts/formula/CI | Covered by updated automated tests |
+| Arm64 archive, binary checksums, source-checksummed formula generator | Temporary tagged fixture rehearsal passed; helper tests pass | Tooling validated; real tagged artifacts pending |
+| Formula strict audit, source install and test on Apple Silicon | Ruby syntax check of temporary fixture recipe passed | Homebrew acceptance pending |
 | Tag-to-draft workflow | Source authored; separate write-permission draft job | Hosted validation pending |
 | Public release/tap publication | Not requested or performed | Separate future action |
 
@@ -31,18 +31,17 @@ Homebrew source checkout containing tag 7.0.10 and the matching already-installe
 portable Ruby. The command refuses an existing test root. It does not download
 or install dependency tools, invoke sudo, or use installed user packages as data.
 
-From an ordinary terminal outside the current inherited agent sandbox:
+Use a new project-local directory outside macOS temporary/cache write allowances:
 
 ```sh
 go build -o dist/upmacx-native-acceptance ./cmd/upmacx
 python3 scripts/native_brew_acceptance.py \
-  --root /private/tmp/upmacx-native-acceptance-new-run \
+  --root "$PWD/.native-tests/acceptance-new-run" \
   --brew-source /opt/homebrew \
   --upmacx "$PWD/dist/upmacx-native-acceptance"
 ```
 
-Substitute an existing Homebrew source path on the test machine. On Intel this
-is commonly `/usr/local/Homebrew`; do not assume a path without checking it.
+Substitute an existing Homebrew source path on the test machine. Intel is unsupported; do not run acceptance on an Intel Mac.
 The selected Go toolchain must already exist for the build command.
 
 The runner creates a separate Homebrew checkout, HOME, caches, logs, build-temp,
@@ -54,8 +53,9 @@ use `--ignore-dependencies`; casks contain only a local script binary linked
 inside the test prefix. No app is installed to `/Applications`. The application
 itself still preserves HOME; only this maintainer harness isolates test HOME.
 
-The default formula-inclusive path remains blocked. `--casks-only` runs the cask
-subset independently; its successful results are recorded [here](2026-10-27-homebrew-arm64.md).
+The full formula-inclusive path now passes with the corrected protected prefix,
+recorded [here](2026-10-28-homebrew-full-arm64.md). `--casks-only` remains available
+for independent cask testing.
 Assertions cover empty/outdated schema, formula and cask pins,
 self-updating cask exclusion despite inherited greedy variables, check-only and
 nonterminal refusal, explicit upgrades, old-keg retention without cleanup,
@@ -79,7 +79,8 @@ Inspection of that checkout's `Library/Homebrew/sandbox.rb` confirmed this is an
 explicit inherited-confinement check. No sandbox-disable option or code patch
 was used. Neither formula-inclusive run completed even the first formula fixture install.
 A separate cask-only run subsequently passed; the full formula-inclusive runner
-is not claimed end-to-end validated.
+was not end-to-end validated at that point. The later protected-prefix run passed;
+see the correction below.
 
 The user-designated macOS UTM VM was no longer registered when rechecked; only
 the Ubuntu VM remained. Ubuntu execution is recorded [separately](2026-10-27-ubuntu-arm64.md)
@@ -91,6 +92,34 @@ Real `v0.1.0` tagged source and its exact GitHub archive bytes do not yet exist
 for this work. Do not commit an invented checksum, create an installable formula
 pointing to a nonexistent tag, or treat a temporary fixture tag as a project
 release. Use [releaseprep](../../cmd/releaseprep/main.go) once the documented gates
-and clean-tag prerequisites are satisfied. It will generate both archives,
+and clean-tag prerequisites are satisfied. It will generate the arm64 archive,
 verified checksum lines and the separate source formula. Native formula
 acceptance and public promotion remain distinct.
+
+## 2026-10-28 scope and retry
+
+The user authorized full testing access and restricted support to Apple Silicon.
+Intel runtime refusal is tested without invoking providers, CI has no Intel job,
+and release preparation emits one arm64 archive and an arm64-restricted formula.
+The updated real preparation helper passed a temporary tagged rehearsal with
+independent checksum/archive/native-version and Ruby syntax verification. No
+Intel prerequisite remains.
+
+The fully authorized native formula retry still failed the same Homebrew
+inherited-sandbox check. Opening ordinary Terminal through Computer Use was also
+blocked by that tool's safety policy. No sandbox bypass or alternative GUI shell
+was used. This diagnosis was subsequently corrected: the formula fixture blocker was the
+`/private/tmp` prefix layout, not a lack of permissions or a missing test VM.
+Real authorization/source-formula gates remain separate.
+
+## 2026-10-28 harness correction and full pass
+
+The user reproduced the failure outside Codex. Homebrew explicitly allows writes
+throughout macOS temporary directories, so locating its own executable there
+made its inherited-sandbox guard fail as intended. The harness now rejects those
+roots before test setup. A project-local ignored `.native-tests/` prefix permits
+normal sandbox confinement without disabling or patching it. The full native
+formula/cask suite passed, including formula old-keg retention and explicit
+cleanup. An error-stream assertion was also fixed to accept Homebrew PTY
+diagnostics on stdout or stderr. [Evidence](2026-10-28-homebrew-full-arm64.md) and
+[layout regressions](../../scripts/test_native_brew_paths.py) document the fix.

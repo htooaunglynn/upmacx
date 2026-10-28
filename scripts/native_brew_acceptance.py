@@ -10,21 +10,27 @@ import hashlib
 import io
 import json
 import os
+import platform
 from pathlib import Path
 import shutil
 import subprocess
 import sys
 import tarfile
+from native_brew_paths import validate_root
 
 parser = argparse.ArgumentParser(description=__doc__)
 parser.add_argument('--root', required=True, type=Path, help='new dedicated test directory')
 parser.add_argument('--brew-source', required=True, type=Path, help='existing Homebrew Git checkout')
-parser.add_argument('--upmacx', required=True, type=Path, help='locally built arm64/amd64 CLI')
+parser.add_argument('--upmacx', required=True, type=Path, help='locally built Apple Silicon arm64 CLI')
 parser.add_argument("--casks-only", action="store_true", help="validate casks independently when formula builds are blocked")
 a = parser.parse_args()
-if sys.platform != "darwin" or os.geteuid() == 0:
-    parser.error("native acceptance requires macOS and a non-root user")
+if sys.platform != "darwin" or platform.machine() != "arm64" or os.geteuid() == 0:
+    parser.error("native acceptance requires an Apple Silicon Mac and a non-root user")
 root = a.root.resolve()
+try:
+    validate_root(root, Path.home().resolve())
+except ValueError as error:
+    parser.error(str(error))
 if root.exists():
     parser.error('test root must not exist')
 source = a.brew_source.resolve()
@@ -238,7 +244,7 @@ partial = run([upmacx, '--yes', '--clean', '--providers', 'brew'], expected=1)
 assert '[brew] failed' in partial and 'completed:' in partial
 assert 'running approved cleanup' not in partial
 failure_record = json.loads((root / 'evidence' / f'{sequence:03d}.json').read_text())
-assert 'intentional fixture upgrade failure' in failure_record['stderr']
+assert 'intentional fixture upgrade failure' in failure_record['stdout'] + failure_record['stderr']
 if a.casks_only:
     assert run([brew / 'bin/fixture-cask']).strip() == 'fixture-cask 3.0'
 else:

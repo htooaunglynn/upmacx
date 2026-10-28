@@ -97,7 +97,7 @@ func TestFakeBrewWorkflow(t *testing.T) {
 			}
 			var out, errout bytes.Buffer
 			runner := &process.Executor{Dir: dir, In: strings.NewReader(""), Out: &out, Err: &errout}
-			app := cli.App{OS: "darwin", UID: 501, In: strings.NewReader(tc.answer), Out: &out, Err: &errout, Terminal: func() bool { return tc.terminal }, Providers: []updater.Provider{New(runner)}}
+			app := cli.App{Arch: "arm64", OS: "darwin", UID: 501, In: strings.NewReader(tc.answer), Out: &out, Err: &errout, Terminal: func() bool { return tc.terminal }, Providers: []updater.Provider{New(runner)}}
 			if code := app.Run(context.Background(), tc.args); code != tc.code {
 				t.Fatalf("exit %d want %d: %s", code, tc.code, errout.String())
 			}

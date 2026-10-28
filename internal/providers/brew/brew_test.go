@@ -202,3 +202,25 @@ func TestNativeCaskSnapshots(t *testing.T) {
 		t.Fatal(plan, err)
 	}
 }
+
+func TestNativeMixedSnapshot(t *testing.T) {
+	data, err := os.ReadFile("testdata/homebrew-7.0.10-darwin-arm64-mixed.json")
+	if err != nil {
+		t.Fatal(err)
+	}
+	plan, err := Parse(data, nil)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(plan.Candidates) != 2 || plan.Candidates[0].Kind != "formula" || plan.Candidates[0].ID != "upmacx/acceptance/fixture-tool" || plan.Candidates[1].Kind != "cask" || plan.Candidates[1].ID != "fixture-cask" {
+		t.Fatal(plan)
+	}
+	if len(plan.Exclusions) != 2 {
+		t.Fatal(plan.Exclusions)
+	}
+	for _, candidate := range plan.Candidates {
+		if candidate.Installed != "1.0" || candidate.Target != "2.0" {
+			t.Fatal(candidate)
+		}
+	}
+}

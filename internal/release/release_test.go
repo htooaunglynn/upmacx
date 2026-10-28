@@ -198,7 +198,7 @@ func TestPrepare(t *testing.T) {
 						if scenario == "build failure" {
 							return nil, errors.New("build failed")
 						}
-						if !reflect.DeepEqual(env, []string{"CGO_ENABLED=0", "GOOS=darwin", "GOARCH=" + []string{"arm64", "amd64"}[len(builds)]}) {
+						if !reflect.DeepEqual(env, []string{"CGO_ENABLED=0", "GOOS=darwin", "GOARCH=arm64"}) {
 							t.Fatal(env)
 						}
 						if !strings.Contains(strings.Join(args, " "), "-X main.version=v0.1.0") {
@@ -232,12 +232,15 @@ func TestPrepare(t *testing.T) {
 			if e != nil {
 				t.Fatal(e)
 			}
-			if len(builds) != 2 {
+			if len(builds) != 1 {
 				t.Fatal(builds)
 			}
 			sums, e := os.ReadFile(filepath.Join(out, "checksums.txt"))
 			if e != nil {
 				t.Fatal(e)
+			}
+			if len(strings.Split(strings.TrimSpace(string(sums)), "\n")) != 1 || strings.Contains(string(sums), "amd64") {
+				t.Fatal("release must contain only the arm64 archive", string(sums))
 			}
 			for _, line := range strings.Split(strings.TrimSpace(string(sums)), "\n") {
 				fields := strings.Fields(line)
@@ -253,7 +256,7 @@ func TestPrepare(t *testing.T) {
 			if e != nil {
 				t.Fatal(e)
 			}
-			for _, s := range []string{fmt.Sprintf("%x", sha256.Sum256(source)), "refs/tags/v0.1.0.tar.gz", "depends_on :macos", "--version", "--help"} {
+			for _, s := range []string{fmt.Sprintf("%x", sha256.Sum256(source)), "refs/tags/v0.1.0.tar.gz", "depends_on :macos", "depends_on arch: :arm64", "--version", "--help"} {
 				if !strings.Contains(string(formula), s) {
 					t.Fatal("missing formula requirement", s)
 				}

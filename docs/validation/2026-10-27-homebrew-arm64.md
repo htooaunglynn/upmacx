@@ -1,5 +1,9 @@
 # Controlled Homebrew arm64 acceptance — 2026-10-27
 
+Historical evidence recorded under the earlier dual-architecture plan. On 2026-10-28,
+the user changed support to Apple Silicon only; any Intel prerequisites below are
+superseded by the current [acceptance ledger](phase-1-acceptance.md).
+
 Environment: macOS 27.0.1 (26A434), arm64. Manager: Homebrew 7.0.10,
 source commit `8f10429b56be28a25032b87463fffc95e556b5bc`, using its matching
 already-installed portable Ruby copied to an isolated temporary prefix.
@@ -28,7 +32,7 @@ Reproduction (root must not exist; provide the actual source/binary paths):
 
 ```sh
 python3 scripts/native_brew_acceptance.py \
-  --root /private/tmp/upmacx-cask-acceptance-new-run \
+  --root "$PWD/.native-tests/cask-acceptance-new-run" \
   --brew-source /opt/homebrew \
   --upmacx "$PWD/dist/upmacx-arm64" --casks-only
 ```

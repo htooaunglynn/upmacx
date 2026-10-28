@@ -2,3 +2,6 @@
 /upmacx
 *.test
 coverage.out
+
+/.native-tests/
+__pycache__/

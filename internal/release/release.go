@@ -124,7 +124,7 @@ func Prepare(ctx context.Context, c Config) error {
 		return e
 	}
 	var sums strings.Builder
-	for _, arch := range []string{"arm64", "amd64"} {
+	for _, arch := range []string{"arm64"} {
 		binary := filepath.Join(stage, "upmacx-"+arch)
 		args := []string{"-C", root, "build", "-trimpath", "-ldflags=-s -w -X main.version=" + c.Tag, "-o", binary, "./cmd/upmacx"}
 		if _, e = c.Run(ctx, "go", args, []string{"CGO_ENABLED=0", "GOOS=darwin", "GOARCH=" + arch}); e != nil {
@@ -157,7 +157,7 @@ func Prepare(ctx context.Context, c Config) error {
 	if e = os.WriteFile(filepath.Join(stage, "Formula", "upmacx.rb"), []byte(formula), 0644); e != nil {
 		return e
 	}
-	metadata := fmt.Sprintf("Tag: %s\nCommit: %s\nCompiler: %s\nBuild: CGO_ENABLED=0 GOOS=darwin GOARCH=arm64,amd64 -trimpath -ldflags=-s -w -X main.version=%s\nSource SHA-256: %x\nNative provider/formula validation and publication are separate maintainer gates.\n", c.Tag, bytes.TrimSpace(head), bytes.TrimSpace(compiler), c.Tag, sha256.Sum256(source))
+	metadata := fmt.Sprintf("Tag: %s\nCommit: %s\nCompiler: %s\nBuild: CGO_ENABLED=0 GOOS=darwin GOARCH=arm64 -trimpath -ldflags=-s -w -X main.version=%s\nSource SHA-256: %x\nNative provider/formula validation and publication are separate maintainer gates.\n", c.Tag, bytes.TrimSpace(head), bytes.TrimSpace(compiler), c.Tag, sha256.Sum256(source))
 	if e = os.WriteFile(filepath.Join(stage, "build-info.txt"), []byte(metadata), 0644); e != nil {
 		return e
 	}
@@ -285,6 +285,7 @@ func Formula(tag, checksum string) string {
 
   depends_on "go" => :build
   depends_on :macos
+  depends_on arch: :arm64
 
   def install
     system "go", "build", "-trimpath",

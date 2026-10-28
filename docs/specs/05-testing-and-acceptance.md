@@ -6,7 +6,7 @@ Implement tests before each provider is enabled. Inject Runner, streams, termina
 
 Set fake PATH and temporary package-manager homes/prefixes for subprocess tests. Assert every requested command is fake; fail closed on an unexpected executable. Network access is unnecessary. No live update smoke test runs in the normal CI suite, and `--check` against the host is not an automated test substitute.
 
-CI from phase 1: `go test ./...`, `go vet ./...`, formatting check without rewriting files, and `CGO_ENABLED=0 GOOS=darwin GOARCH=arm64` / `amd64` builds. Run orchestration/process tests on macOS to verify signal groups. On Darwin, include a real pseudo-terminal test using only the fake Go test executable: verify child input, Ctrl-C, signal propagation and foreground restoration. This does not replace controlled installer/authentication tests. Include an interrupted leader whose signal-ignoring descendant retains stdout/stderr, and assert prompt cancellation rather than a capture timeout. Use a Linux job for portable parsing/tests if convenient; Darwin process code needs build tags and actual macOS coverage. CI explicitly includes `macos-15-intel` as well as the arm64 macOS runner and performs native help/version smoke tests. Runner architecture labels are documented by [GitHub](https://docs.github.com/en/actions/reference/runners/github-hosted-runners); authored jobs are not evidence of a hosted run. Cross-build success does not prove an Intel binary runs; native architecture smoke evidence is required for public support claims.
+CI from phase 1: `go test ./...`, `go vet ./...`, formatting check without rewriting files, and a `CGO_ENABLED=0 GOOS=darwin GOARCH=arm64` build. Run orchestration/process tests on macOS to verify signal groups. On Darwin, include a real pseudo-terminal test using only the fake Go test executable: verify child input, Ctrl-C, signal propagation and foreground restoration. This does not replace controlled installer/authentication tests. Include an interrupted leader whose signal-ignoring descendant retains stdout/stderr, and assert prompt cancellation rather than a capture timeout. Use a Linux job for portable parsing/tests if convenient; Darwin process code needs build tags and actual macOS coverage. CI uses an arm64 macOS runner and performs native help/version smoke tests; Intel CI and builds are out of scope. Runner architecture labels are documented by [GitHub](https://docs.github.com/en/actions/reference/runners/github-hosted-runners); authored jobs are not evidence of a hosted run. Apple Silicon native smoke evidence is required for support claims. Intel refusal must be tested through the injected architecture before any provider operation.
 
 ## CLI and orchestrator acceptance matrix
 
@@ -14,7 +14,7 @@ CI from phase 1: `go test ./...`, `go vet ./...`, formatting check without rewri
 | --- | --- |
 | Help/version | Exact output contract; zero provider subprocesses |
 | Invalid args/selection/flag combination | Exit 2 before detection |
-| Non-Darwin/root execution | Clear refusal, no provider operations; help/version still work |
+| Non-Darwin/Intel/root execution | Clear refusal, no provider operations; help/version still work |
 | No outdated candidates | Exit 0; no upgrade; cleanup only if requested and confirmed |
 | Check with updates | Exit 0, displayed candidates, no upgrade/cleanup/implicit maintenance |
 | Yes/y with case/whitespace | Exactly planned operations execute |
@@ -49,6 +49,6 @@ For each provider include zero/one/many candidates, malformed records, nonzero s
 
 ## Manual release acceptance
 
-Use disposable test Macs/VMs or explicitly designated test accounts/prefixes, never an ordinary developer machine's software as test data. Capture tested versions and outcomes without credentials. Verify Apple Silicon and Intel executable help/version, one controlled candidate per provider, authorization denial and a partial failure. System-update install testing requires a disposable supported OS environment and observation that no automatic reboot occurs; otherwise ship discovery-only support on that OS and state the limitation.
+Use disposable test Macs/VMs or explicitly designated test accounts/prefixes, never an ordinary developer machine's software as test data. Capture tested versions and outcomes without credentials. Verify Apple Silicon executable help/version, one controlled candidate per provider, authorization denial and a partial failure. System-update install testing requires a disposable supported OS environment and observation that no automatic reboot occurs; otherwise ship discovery-only support on that OS and state the limitation.
 
 In a clean Homebrew environment, audit, build from tagged source, run formula test and verify help/version. Real `upmacx --check` is a separate controlled network/metadata smoke test, not part of the formula test. Verify installing the formula itself never executes the updater. Publishing requires the phase's automated gates plus documented native compatibility evidence. No live acceptance operations are performed as part of creating these specs.

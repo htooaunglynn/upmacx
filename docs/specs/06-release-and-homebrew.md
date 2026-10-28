@@ -8,9 +8,9 @@ Adopt SemVer, starting at `v0.1.0`. `main.version` defaults to `dev`; tagged bui
 
 ## Build and artifact contract
 
-From a clean tested tagged checkout, build with `CGO_ENABLED=0`, `GOOS=darwin`, `GOARCH=arm64` and `amd64`, `-trimpath` and `-ldflags="-s -w -X main.version=TAG"`, targeting `./cmd/upmacx`. Replace TAG with the real tag; do not publish a `dev` binary. Do not execute foreign-architecture binaries as if cross-builds were native validation.
+From a clean tested tagged checkout, build with `CGO_ENABLED=0`, `GOOS=darwin`, `GOARCH=arm64`, `-trimpath` and `-ldflags="-s -w -X main.version=TAG"`, targeting `./cmd/upmacx`. Replace TAG with the real tag; do not publish a `dev` binary. Do not execute foreign-architecture binaries as if cross-builds were native validation.
 
-Artifacts: `upmacx_TAG_darwin_arm64.tar.gz`, `upmacx_TAG_darwin_amd64.tar.gz`, and `checksums.txt`. Each archive contains executable `upmacx`, README and LICENSE at its root. Generate SHA-256 lines over the final archives with `shasum -a 256`; verify them again before upload. Source archive checksum is independently calculated from the exact tag URL consumed by Homebrew.
+Artifacts: `upmacx_TAG_darwin_arm64.tar.gz` and `checksums.txt`. Each archive contains executable `upmacx`, README and LICENSE at its root. Generate SHA-256 lines over the final archives with `shasum -a 256`; verify them again before upload. Source archive checksum is independently calculated from the exact tag URL consumed by Homebrew.
 
 Archive determinism is a build-system goal, not an unverified claim; record compiler version and build inputs in release notes. Code signing/notarization is deferred; don't claim either. Test direct-download execution on controlled Macs and document any platform-required manual steps honestly.
 
@@ -29,8 +29,8 @@ go run ./cmd/releaseprep --tag v0.1.0 \
 The helper rejects a dirty checkout, missing/mismatched tag, existing output,
 unformatted code, failed tests/vet/builds, or a source archive differing from
 tracked files. It rejects source traversal, links, duplicates, missing/extra
-files, and corrupt gzip data. Generated output includes both specified binary
-archives (root entries `upmacx`, `README`, `LICENSE`), disk-verified SHA-256 lines,
+files, and corrupt gzip data. Generated output includes the arm64 binary
+archive (root entries `upmacx`, `README`, `LICENSE`), disk-verified SHA-256 lines,
 build-info metadata and `Formula/upmacx.rb` using the supplied source archive's
 independent SHA-256. Output is staged before the complete directory is exposed.
 
@@ -53,7 +53,7 @@ GitHub repository creation, authentication, public release and push are future m
 
 ## Formula template contract
 
-The tap contains `Formula/upmacx.rb` with class `Upmacx`, description, source homepage, immutable tag URL, real source `sha256`, `license "MIT"`, `depends_on "go" => :build`, and `depends_on :macos`. No linuxbrew dependency, optional-provider dependencies, updater execution in install, or bottles initially.
+The tap contains `Formula/upmacx.rb` with class `Upmacx`, description, source homepage, immutable tag URL, real source `sha256`, `license "MIT"`, `depends_on "go" => :build`, `depends_on :macos`, and `depends_on arch: :arm64`. No linuxbrew dependency, optional-provider dependencies, updater execution in install, or bottles initially.
 
 Its install method invokes Go using separate arguments:
 
@@ -74,7 +74,7 @@ brew test OWNER/tap/upmacx
 upmacx --version
 ```
 
-The initial formula is source-built on both architectures. Native tap tests must cover both supported architectures or release support claims must identify the missing validation.
+The formula supports only Apple Silicon, enforced with `depends_on arch: :arm64`. It must be source-built and tested natively on arm64. Do not generate or publish Intel artifacts.
 
 ## User installation and updates
 

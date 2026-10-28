@@ -4,7 +4,7 @@
 
 Source: [Create Homebrew Package — shared conversation](https://chatgpt.com/share/6adf574d-c100-83ea-98e2-6ec5d1f90877). The complete visible conversation was read during planning. This document summarizes it; the tutorial code is not an accepted implementation.
 
-The user wants one command to update supported software on a Mac and to learn the complete Go-to-Homebrew publishing process. The working name is `upmacx`, with the description “Your macOS update assistant.” Audience: Mac users comfortable running terminal commands, initially including the user's Apple Silicon Mac, plus Intel users.
+The user wants one command to update supported software on a Mac and to learn the complete Go-to-Homebrew publishing process. The working name is `upmacx`, with the description “Your macOS update assistant.” Audience: Mac users comfortable running terminal commands, using Apple Silicon Macs only. Intel support was explicitly removed by the user on 2026-10-28.
 
 Success means a user can inspect available updates, understand the planned changes, confirm once, execute supported updates, and receive an honest per-provider outcome. Installation through a custom Homebrew tap and reproducible release instructions are required. “Every installed app” is an aspiration limited by available package-manager coverage, permissions, compatibility, and account access.
 
@@ -20,7 +20,7 @@ Success means a user can inspect available updates, understand the planned chang
 | App Store through mas | 04 mas, phase 3 |
 | npm, pnpm, pipx, Cargo | 04 developer providers, phase 4 |
 | Project structure and implementation guide | 03, 07 |
-| Dual-architecture binaries and checksums | 06 |
+| Apple Silicon arm64 binary and checksums | 06 |
 | GitHub releases, tap, installation, future upgrades | 06 |
 | Tests, CI, better output, errors and recovery | 03, 05, 07 |
 | Manually installed DMG applications | Unsupported; use vendor updater |

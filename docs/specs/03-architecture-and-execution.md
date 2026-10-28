@@ -9,7 +9,7 @@
 - `internal/providers/{brew,softwareupdate,mas,npm,pnpm,pipx,cargo}`: adapters and adjacent fixture tests.
 - `testdata/`: sanitized version-labeled command output; `docs/`, `go.mod`, README, LICENSE and CI added in phase 1.
 
-Use the standard library for flags, JSON, process execution and signals. A small terminal-detection dependency is allowed only if documented and tested on both Darwin architectures; prefer an injected terminal predicate so tests need no real TTY. Keep Go version selection in phase 1 tied to the stable supported toolchain then available, and record it in go.mod and CI together.
+Use the standard library for flags, JSON, process execution and signals. A small terminal-detection dependency is allowed only if documented and tested on Darwin arm64; prefer an injected terminal predicate so tests need no real TTY. Keep Go version selection in phase 1 tied to the stable supported toolchain then available, and record it in go.mod and CI together.
 
 ## Internal interfaces
 

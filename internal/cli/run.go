@@ -10,12 +10,12 @@ import (
 )
 
 type App struct {
-	Version, OS string
-	UID         int
-	In          io.Reader
-	Out, Err    io.Writer
-	Terminal    func() bool
-	Providers   []updater.Provider
+	Version, OS, Arch string
+	UID               int
+	In                io.Reader
+	Out, Err          io.Writer
+	Terminal          func() bool
+	Providers         []updater.Provider
 }
 
 func (a App) Run(ctx context.Context, args []string) int {
@@ -34,6 +34,10 @@ func (a App) Run(ctx context.Context, args []string) int {
 	}
 	if a.OS != "darwin" || a.UID == 0 {
 		fmt.Fprintln(a.Err, "execution requires macOS and a non-root user")
+		return 1
+	}
+	if a.Arch != "arm64" {
+		fmt.Fprintln(a.Err, "execution requires Apple Silicon (arm64); Intel Macs are unsupported")
 		return 1
 	}
 	return updater.Run(ctx, updater.Options{Check: o.Check, Yes: o.Yes, Clean: o.Clean, Explicit: o.Explicit}, a.Providers, a)

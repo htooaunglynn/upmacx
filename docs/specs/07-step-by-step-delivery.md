@@ -9,10 +9,10 @@ Prerequisites: approved specs; locally available supported stable Go and Git; ac
 1. Create Go module and layout from 03, README, actual MIT LICENSE and build-output ignore rules. Set the selected supported stable Go version consistently in module and CI.
 2. Implement CLI parsing, version/help, injected Runner, result types, plan rendering, terminal consent and signal cancellation. Add tests as each behavior is introduced.
 3. Implement brew refresh, structured discovery, eligibility filtering, explicit upgrades and opt-in cleanup with automatic cleanup disabled.
-4. Add CI for tests, vet, nonmutating formatting check and both Darwin cross-builds. Add a macOS process/cancellation test job.
-5. Complete fake-brew workflow matrix and controlled native smoke validation. Prepare dual-architecture archives and source formula using 06; publish only after the release gates pass.
+4. Add CI for tests, vet, nonmutating formatting check and a Darwin arm64 build. Add a macOS process/cancellation test job.
+5. Complete fake-brew workflow matrix and controlled native smoke validation. Prepare an Apple Silicon arm64 archive and source formula using 06; publish only after the release gates pass.
 
-Completion: `--check` cannot install or clean, declined confirmation changes nothing, partial failure exits correctly, cleanup is opt-in, help/version need no brew, both architectures build, and controlled formula audit/install/test pass. Artifacts: Go application, tests/fixtures, CI, README/LICENSE, v0.1 release candidate archives/checksums and a separate tap formula. Publication is a later action, not a prerequisite for local correctness.
+Completion: `--check` cannot install or clean, declined confirmation changes nothing, partial failure exits correctly, cleanup is opt-in, help/version need no brew, the arm64 target builds, and controlled formula audit/install/test pass. Artifacts: Go application, tests/fixtures, CI, README/LICENSE, v0.1 release candidate archives/checksums and a separate tap formula. Publication is a later action, not a prerequisite for local correctness.
 
 ## Phase 2 — v0.2 macOS software updates
 
@@ -51,7 +51,7 @@ Completion: all seven providers are represented in help/default selection, suppo
 Prerequisites: all provider gates and native compatibility evidence, resolved owner/license holder and real artifact checksums.
 
 1. Review end-to-end UX and cross-provider ordering, error summaries, authentication/manual action and interruption handling.
-2. Run the full acceptance matrix and clean-environment installation on both architectures; document tested OS/tool versions and limitations.
+2. Run the full acceptance matrix and clean-environment installation on Apple Silicon arm64; document tested OS/tool versions and limitations.
 3. Validate tag-to-draft-release CI, artifact checksums and manual tap update process. Rehearse a patch release without moving existing tags.
 4. Publish source/release/tap through the documented maintainer workflow and verify public installation instructions. Declare only proven compatibility.
 

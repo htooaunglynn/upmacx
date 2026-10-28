@@ -1,8 +1,8 @@
 # upmacx
 
-Your macOS update assistant. Phase 1 development implementation covers Homebrew
+Your macOS update assistant for **Apple Silicon (arm64) only**. Intel Macs are unsupported. Phase 1 development implementation covers Homebrew
 formulae and eligible casks. No public release or Homebrew tap is available yet.
-Native provider installation and formula acceptance gates are still pending.
+Native formula/cask fixture tests pass; vendor authorization and tagged upmacx formula acceptance remain pending.
 
 ## Build and inspect
 
@@ -15,7 +15,7 @@ go build -trimpath -o dist/upmacx ./cmd/upmacx
 ```
 
 Help and version work without Homebrew and on other operating systems. Updater
-execution requires macOS and a non-root user. Only the source-reviewed Homebrew
+execution requires macOS on arm64 and a non-root user. Only the source-reviewed Homebrew
 7.0.10 adapter is currently accepted; other versions report unavailable until
 compatibility is reviewed. Homebrew must already be installed; follow the
 [official Homebrew instructions](https://brew.sh/) manually if needed. upmacx
@@ -64,7 +64,6 @@ go test -race ./...
 go vet ./...
 test -z "$(gofmt -l cmd internal)"
 CGO_ENABLED=0 GOOS=darwin GOARCH=arm64 go build -trimpath -o dist/upmacx-arm64 ./cmd/upmacx
-CGO_ENABLED=0 GOOS=darwin GOARCH=amd64 go build -trimpath -o dist/upmacx-amd64 ./cmd/upmacx
 ```
 
 Darwin process tests also use a real pseudo-terminal to verify fake-child input,
@@ -73,7 +72,7 @@ authorization acceptance evidence.
 
 Tests use injected providers and the Go test binary as fake tools with isolated
 PATH/homes/prefixes. They never update host software. CI runs on Linux and macOS;
-both architectures are cross-built, which does not prove native Intel behavior.
+the arm64 target is built. Intel builds and acceptance are out of scope.
 See [compatibility evidence](internal/providers/brew/testdata/README.md) for the
 difference between source-reviewed fixtures and outstanding native tests.
 
@@ -98,7 +97,7 @@ go run ./cmd/releaseprep --tag v0.1.0 \
 
 The helper requires an existing exact tag at HEAD, no tracked/untracked changes,
 a new output directory, and source archive contents matching every tracked file.
-It runs tests, vet and a formatting check, builds both Darwin architectures with
+It runs tests, vet and a formatting check, builds Darwin arm64 with
 the tag injected, and generates archives, verified binary checksums, build input
 metadata and `Formula/upmacx.rb`. The formula checksum is calculated from the
 supplied source archive, separately from binary checksums. Archive roots contain
@@ -120,6 +119,12 @@ been validated on GitHub.
 The [acceptance ledger](docs/validation/phase-1-acceptance.md) lists each implemented
 component, its evidence, and the remaining native/release gates. The opt-in
 `native_brew_acceptance.py` command there creates local-only formula/cask fixtures
-in a new isolated prefix. It has not completed in the current inherited sandbox;
-run it in a disposable Mac or ordinary terminal without disabling Homebrew's
-sandbox. Native Intel CI is explicitly configured, but hosted runs are pending.
+in a new isolated prefix. Keep its root outside `/private/tmp`, `/private/var/tmp` and macOS temporary
+cache directories so Homebrew can protect its executable. Homebrew's sandbox
+remains enabled. Only Apple Silicon CI is configured; hosted runs are pending.
+
+Native harness layout regressions can be run without Homebrew:
+
+```sh
+PYTHONDONTWRITEBYTECODE=1 python3 -m unittest discover -s scripts -p 'test_native_brew_paths.py'
+```
